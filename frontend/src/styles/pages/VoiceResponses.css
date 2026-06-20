@@ -1,0 +1,165 @@
+.vr-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+}
+
+.vr-form {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 520px;
+  box-shadow: var(--shadow-sm);
+}
+
+.vr-form-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vr-error {
+  background-color: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  color: var(--danger);
+  font-size: 0.85rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+}
+
+.vr-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.vr-form-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.vr-form-group input,
+.vr-form-group textarea,
+.vr-form-group select {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  background-color: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  outline: none;
+  font-family: inherit;
+}
+
+.vr-form-group input:focus,
+.vr-form-group textarea:focus,
+.vr-form-group select:focus {
+  border-color: var(--accent);
+}
+
+.vr-form-button {
+  align-self: flex-start;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: var(--accent);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.vr-form-button:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.vr-form-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vr-table-wrap {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.vr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.vr-table thead th {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-subtle);
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--border);
+}
+
+.vr-table tbody td {
+  padding: 0.85rem 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.vr-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vr-table tbody tr:hover {
+  background-color: var(--bg-hover);
+}
+
+.vr-type {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background-color: var(--accent-soft);
+  color: var(--accent-text);
+  text-transform: capitalize;
+}
+
+.vr-delete {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--danger);
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--danger-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.vr-delete:hover {
+  background-color: var(--danger-soft);
+}
+
+.vr-empty {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.vr-loading {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}

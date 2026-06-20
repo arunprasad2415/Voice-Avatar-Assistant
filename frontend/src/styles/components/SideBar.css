@@ -1,0 +1,60 @@
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background-color: var(--bg-elevated);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.sidebar-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  padding: 0 1.5rem 1.5rem;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-link {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link:hover {
+  background-color: var(--bg-hover);
+  color: var(--text);
+}
+
+.sidebar-link-active {
+  background-color: var(--accent-soft);
+  color: var(--accent-text);
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1.5rem 1.5rem 0;
+}
+
+.sidebar-assistant-link {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--accent-text);
+  text-decoration: none;
+  padding: 0.6rem 0;
+}
+
+.sidebar-assistant-link:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,74 @@
+.faq-table-wrap {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.faq-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.faq-table thead th {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.faq-table tbody td {
+  padding: 0.85rem 1rem;
+  color: #1a1a1a;
+  border-bottom: 1px solid #f0f1f3;
+  vertical-align: top;
+}
+
+.faq-answer-cell {
+  color: #4b5563;
+  max-width: 320px;
+}
+
+.faq-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.faq-category {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background-color: #eff6ff;
+  color: #2563eb;
+  text-transform: capitalize;
+}
+
+.faq-table-delete {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  color: #b91c1c;
+  background-color: #ffffff;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.faq-table-delete:hover {
+  background-color: #fef2f2;
+}
+
+.faq-table-empty {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 2.5rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}

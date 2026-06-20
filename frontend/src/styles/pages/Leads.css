@@ -1,0 +1,75 @@
+.leads-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.leads-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.leads-export {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.leads-export-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.leads-export-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.leads-search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.leads-search input {
+  flex: 1;
+  max-width: 360px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  background-color: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  outline: none;
+}
+
+.leads-search input:focus {
+  border-color: var(--accent);
+}
+
+.leads-search button {
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
+  color: #ffffff;
+  background-color: var(--accent);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.leads-search button:hover {
+  background-color: var(--accent-hover);
+}
+
+.leads-loading {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
