@@ -1,19 +1,23 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-const useSpeechRecognition = () => {
-  const [transcript, setTranscript] = useState("");
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+const isSupported = Boolean(SpeechRecognition);
+
+// Calls onResult(text) with each finished phrase the user speaks.
+const useSpeechRecognition = (onResult) => {
   const [isListening, setIsListening] = useState(false);
-  const [isSupported, setIsSupported] = useState(true);
   const [error, setError] = useState(null);
 
   const recognitionRef = useRef(null);
+  const onResultRef = useRef(onResult);
 
   useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    onResultRef.current = onResult;
+  });
 
+  useEffect(() => {
     if (!SpeechRecognition) {
-      setIsSupported(false);
       return;
     }
 
@@ -30,7 +34,7 @@ const useSpeechRecognition = () => {
 
     recognition.onresult = (event) => {
       const spokenText = event.results[0][0].transcript;
-      setTranscript(spokenText);
+      onResultRef.current?.(spokenText);
     };
 
     recognition.onerror = (event) => {
@@ -75,7 +79,6 @@ const useSpeechRecognition = () => {
 
     if (!recognition || isListening) return;
 
-    setTranscript("");
     setError(null);
 
     try {
@@ -100,18 +103,12 @@ const useSpeechRecognition = () => {
     setIsListening(false);
   }, []);
 
-  const resetTranscript = useCallback(() => {
-    setTranscript("");
-  }, []);
-
   return {
-    transcript,
     isListening,
     isSupported,
     error,
     startListening,
     stopListening,
-    resetTranscript,
   };
 };
 

@@ -10,18 +10,12 @@ const Leads = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const loadLeads = async (searchTerm = "") => {
-    setLoading(true);
-    try {
-      const params = searchTerm ? { search: searchTerm } : {};
-      const res = await leadService.getLeads(params);
-      setLeads(res.data || []);
-    } catch (error) {
-      console.error("Failed to load leads:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadLeads = (searchTerm = "") =>
+    leadService
+      .getLeads(searchTerm ? { search: searchTerm } : {})
+      .then((res) => setLeads(res.data || []))
+      .catch((error) => console.error("Failed to load leads:", error.message))
+      .finally(() => setLoading(false));
 
   useEffect(() => {
     loadLeads();

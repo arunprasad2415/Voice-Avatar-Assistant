@@ -1,13 +1,16 @@
 import { useState } from "react";
 import "../styles/components/FAQForm.css";
 
-const FAQForm = ({ onSubmit }) => {
-  const [form, setForm] = useState({
-    question: "",
-    answer: "",
-    category: "general",
-    keywords: "",
-  });
+const EMPTY_FORM = { question: "", answer: "", category: "general", keywords: "" };
+
+// Remount with a new `key` to load different `initial` values (an FAQ to edit, or a drafted question).
+const FAQForm = ({ initial, onSubmit, onCancel }) => {
+  const isEditing = Boolean(initial?._id);
+  const [form, setForm] = useState(() => ({
+    ...EMPTY_FORM,
+    ...initial,
+    keywords: initial?.keywords?.join(", ") || "",
+  }));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -36,17 +39,17 @@ const FAQForm = ({ onSubmit }) => {
           : [],
       };
       await onSubmit(payload);
-      setForm({ question: "", answer: "", category: "general", keywords: "" });
+      setForm(EMPTY_FORM);
     } catch (err) {
-      setError("Failed to add FAQ. Please try again.");
+      setError(err.response?.data?.message || "Failed to save FAQ. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form className="faq-form" onSubmit={handleSubmit}>
-      <h2 className="faq-form-title">Add FAQ</h2>
+    <form className={`faq-form ${isEditing ? "faq-form-editing" : ""}`} onSubmit={handleSubmit}>
+      <h2 className="faq-form-title">{isEditing ? "Edit FAQ" : "Add FAQ"}</h2>
 
       {error && <div className="faq-form-error">{error}</div>}
 
@@ -104,9 +107,16 @@ const FAQForm = ({ onSubmit }) => {
         </div>
       </div>
 
-      <button type="submit" className="faq-form-button" disabled={loading}>
-        {loading ? "Adding..." : "Add FAQ"}
-      </button>
+      <div className="faq-form-actions">
+        <button type="submit" className="faq-form-button" disabled={loading}>
+          {loading ? "Saving..." : isEditing ? "Save changes" : "Add FAQ"}
+        </button>
+        {initial && (
+          <button type="button" className="faq-form-cancel" onClick={onCancel}>
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 };

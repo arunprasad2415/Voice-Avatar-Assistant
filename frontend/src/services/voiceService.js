@@ -15,6 +15,11 @@ const createVoiceResponse = async (data) => {
   return response.data;
 };
 
+const updateVoiceResponse = async (id, data) => {
+  const response = await api.put(`/voice/${id}`, data);
+  return response.data;
+};
+
 const deleteVoiceResponse = async (id) => {
   const response = await api.delete(`/voice/${id}`);
   return response.data;
@@ -24,6 +29,7 @@ const voiceService = {
   askAssistant,
   getVoiceResponses,
   createVoiceResponse,
+  updateVoiceResponse,
   deleteVoiceResponse,
 };
 

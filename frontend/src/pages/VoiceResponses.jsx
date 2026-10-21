@@ -3,24 +3,22 @@ import AdminLayout from "../components/AdminLayout";
 import voiceService from "../services/voiceService";
 import "../styles/pages/VoiceResponses.css";
 
+const EMPTY_FORM = { trigger: "", response: "", type: "custom" };
+
 const VoiceResponses = () => {
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ trigger: "", response: "", type: "custom" });
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const loadResponses = async () => {
-    setLoading(true);
-    try {
-      const res = await voiceService.getVoiceResponses();
-      setResponses(res.data || []);
-    } catch (err) {
-      console.error("Failed to load voice responses:", err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadResponses = () =>
+    voiceService
+      .getVoiceResponses()
+      .then((res) => setResponses(res.data || []))
+      .catch((err) => console.error("Failed to load voice responses:", err.message))
+      .finally(() => setLoading(false));
 
   useEffect(() => {
     loadResponses();
@@ -29,6 +27,12 @@ const VoiceResponses = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const resetForm = () => {
+    setForm(EMPTY_FORM);
+    setEditingId(null);
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -42,13 +46,35 @@ const VoiceResponses = () => {
 
     setSubmitting(true);
     try {
-      await voiceService.createVoiceResponse(form);
-      setForm({ trigger: "", response: "", type: "custom" });
+      if (editingId) {
+        await voiceService.updateVoiceResponse(editingId, form);
+      } else {
+        await voiceService.createVoiceResponse(form);
+      }
+      resetForm();
       loadResponses();
     } catch (err) {
-      setError("Failed to add response.");
+      setError(err.response?.data?.message || "Failed to save response.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (r) => {
+    setForm({ trigger: r.trigger, response: r.response, type: r.type });
+    setEditingId(r._id);
+    setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleToggle = async (r) => {
+    const isActive = !r.isActive;
+    setResponses((prev) => prev.map((x) => (x._id === r._id ? { ...x, isActive } : x)));
+    try {
+      await voiceService.updateVoiceResponse(r._id, { isActive });
+    } catch (err) {
+      console.error("Failed to update voice response:", err.message);
+      loadResponses();
     }
   };
 
@@ -58,6 +84,9 @@ const VoiceResponses = () => {
     }
     try {
       await voiceService.deleteVoiceResponse(id);
+      if (editingId === id) {
+        resetForm();
+      }
       loadResponses();
     } catch (err) {
       console.error("Failed to delete:", err.message);
@@ -69,8 +98,11 @@ const VoiceResponses = () => {
       <div className="vr">
         <h1 className="vr-title">Voice Responses</h1>
 
-        <form className="vr-form" onSubmit={handleSubmit}>
-          <h2 className="vr-form-title">Add Response</h2>
+        <form
+          className={`vr-form ${editingId ? "vr-form-editing" : ""}`}
+          onSubmit={handleSubmit}
+        >
+          <h2 className="vr-form-title">{editingId ? "Edit Response" : "Add Response"}</h2>
 
           {error && <div className="vr-error">{error}</div>}
 
@@ -84,6 +116,9 @@ const VoiceResponses = () => {
               onChange={handleChange}
               placeholder="e.g. hello"
             />
+            <span className="vr-hint">
+              Matches when these words appear anywhere in what the user says.
+            </span>
           </div>
 
           <div className="vr-form-group">
@@ -105,11 +140,23 @@ const VoiceResponses = () => {
               <option value="greeting">Greeting</option>
               <option value="fallback">Fallback</option>
             </select>
+            {form.type === "fallback" && (
+              <span className="vr-hint">
+                Said when nothing else (including AI) can answer. The trigger is ignored.
+              </span>
+            )}
           </div>
 
-          <button type="submit" className="vr-form-button" disabled={submitting}>
-            {submitting ? "Adding..." : "Add Response"}
-          </button>
+          <div className="vr-form-actions">
+            <button type="submit" className="vr-form-button" disabled={submitting}>
+              {submitting ? "Saving..." : editingId ? "Save changes" : "Add Response"}
+            </button>
+            {editingId && (
+              <button type="button" className="vr-cancel" onClick={resetForm}>
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
 
         {loading ? (
@@ -124,24 +171,45 @@ const VoiceResponses = () => {
                   <th>Trigger</th>
                   <th>Response</th>
                   <th>Type</th>
+                  <th>Active</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {responses.map((r) => (
-                  <tr key={r._id}>
+                  <tr
+                    key={r._id}
+                    className={`${r.isActive ? "" : "row-inactive"} ${
+                      r._id === editingId ? "row-editing" : ""
+                    }`}
+                  >
                     <td>{r.trigger}</td>
                     <td>{r.response}</td>
                     <td>
                       <span className="vr-type">{r.type}</span>
                     </td>
-                    <td>
+                    <td className="cell-status">
                       <button
-                        className="vr-delete"
-                        onClick={() => handleDelete(r._id)}
-                      >
-                        Delete
-                      </button>
+                        type="button"
+                        className="switch"
+                        role="switch"
+                        aria-checked={r.isActive}
+                        aria-label={`${r.isActive ? "Deactivate" : "Activate"} "${r.trigger}"`}
+                        onClick={() => handleToggle(r)}
+                      />
+                    </td>
+                    <td>
+                      <div className="vr-actions">
+                        <button className="vr-edit" onClick={() => handleEdit(r)}>
+                          Edit
+                        </button>
+                        <button
+                          className="vr-delete"
+                          onClick={() => handleDelete(r._id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

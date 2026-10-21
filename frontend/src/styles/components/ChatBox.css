@@ -1,148 +1,68 @@
-.home {
-  min-height: 100vh;
-  background-color: var(--bg);
-  transition: background-color 0.3s ease;
-}
-
-.home-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 2rem;
-}
-
-.home-brand {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.home-header-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.home-admin-link {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--accent-text);
-  text-decoration: none;
-}
-
-.home-admin-link:hover {
-  text-decoration: underline;
-}
-
-.home-main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem 1rem 3rem;
-}
-
-.home-card {
-  width: 100%;
-  max-width: 600px;
-  background-color: var(--bg-elevated);
-  border: 1px solid var(--border);
+.chatbox {
+  background: var(--paper);
+  border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow-md);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  padding: 1.5rem;
+  height: 320px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 0.9rem;
+  scroll-behavior: smooth;
 }
+.chatbox-empty {
+  margin: auto; color: var(--ink-3); font-size: 0.9rem; text-align: center;
+  max-width: 240px; line-height: 1.6; font-style: italic;
+}
+.chat-message {
+  max-width: 80%; padding: 0.8rem 1.1rem;
+  font-size: 0.93rem; line-height: 1.55;
+  animation: fadeUp 0.35s var(--ease) both;
+}
+.chat-message-user {
+  align-self: flex-end;
+  background: var(--grad-teal);
+  color: #fff;
+  border-radius: 16px 16px 4px 16px;
+  box-shadow: 0 6px 16px -6px rgba(7,122,125,0.5);
+}
+[data-theme="dark"] .chat-message-user { color: var(--c-ink); }
+.chat-message-assistant {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 16px 16px 16px 4px;
+  box-shadow: var(--shadow-sm);
+}
+.chatbox-empty-wide { max-width: 440px; }
+.chat-suggestions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 1.1rem; font-style: normal; }
+.chat-suggestion {
+  padding: 0.5rem 0.95rem; font-family: var(--font-body); font-size: 0.8rem; line-height: 1.35;
+  color: var(--accent); background: var(--surface); border: 1px solid var(--line-2); border-radius: 999px;
+  cursor: pointer; transition: all 0.2s var(--ease);
+}
+.chat-suggestion:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
 
-.home-avatar-row {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
+.chat-meta { display: flex; align-items: center; justify-content: flex-end; gap: 0.4rem; margin-top: 0.3rem; font-size: 0.68rem; opacity: 0.7; }
+.chat-replay {
+  display: inline-flex; padding: 0.2rem; color: inherit; background: none; border: none; border-radius: 4px;
+  cursor: pointer; opacity: 0.8; transition: opacity 0.15s var(--ease), color 0.15s var(--ease);
 }
+.chat-replay:hover, .chat-replay:focus-visible { opacity: 1; color: var(--accent); }
 
-.home-text-form {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-}
+.chat-typing { display: flex; gap: 0.3rem; padding: 0.95rem 1.1rem; }
+.chat-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); animation: typingDot 1.2s infinite ease-in-out; }
+.chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typingDot { 0%, 60%, 100% { opacity: 0.35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
 
-.home-text-input {
-  flex: 1;
-  padding: 0.65rem 0.85rem;
-  font-size: 0.95rem;
-  background-color: var(--bg-elevated);
-  color: var(--text);
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
+/* Bubbles arrive from their speaker's side; suggestion chips cascade in */
+.chat-message-user { animation-name: slideFromRight; }
+.chat-message-assistant { animation-name: slideFromLeft; }
+@keyframes slideFromRight { from { opacity: 0; transform: translateX(14px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes slideFromLeft { from { opacity: 0; transform: translateX(-14px) scale(0.98); } to { opacity: 1; transform: none; } }
+.chat-suggestion { animation: fadeUp 0.5s var(--ease) both; animation-delay: calc(0.5s + var(--i, 0) * 80ms); }
 
-.home-text-input:focus {
-  border-color: var(--accent);
+.chat-caret {
+  display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -0.15em;
+  background: var(--accent); animation: caretBlink 0.9s steps(1) infinite;
 }
-
-.home-text-input:disabled {
-  background-color: var(--bg-subtle);
-}
-
-.home-text-send {
-  padding: 0.65rem 1.25rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #ffffff;
-  background-color: var(--accent);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.home-text-send:hover:not(:disabled) {
-  background-color: var(--accent-hover);
-}
-
-.home-text-send:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.home-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-.home-unsupported {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.home-processing {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.home-lead-prompt {
-  display: flex;
-  justify-content: center;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-}
-
-.home-lead-toggle {
-  font-size: 0.95rem;
-  color: var(--accent-text);
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.home-lead-form-wrap {
-  width: 100%;
-  max-width: 600px;
-  margin-top: 1.5rem;
-}
+@keyframes caretBlink { 50% { opacity: 0; } }

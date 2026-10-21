@@ -21,7 +21,7 @@ const AdminLogin = () => {
       await login(email, password);
       navigate("/admin/dashboard");
     } catch (err) {
-      setError("Login failed. Please try again.");
+      setError(err.response?.data?.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }

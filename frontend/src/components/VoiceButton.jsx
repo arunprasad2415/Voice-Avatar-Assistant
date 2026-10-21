@@ -4,7 +4,7 @@ const VoiceButton = ({ isListening, disabled = false, onClick }) => {
   return (
     <button
       type="button"
-      className={`voice-button ${isListening ? "voice-button-active" : ""}`}
+      className={`voice-button ${isListening ? "voice-button-listening" : ""}`}
       onClick={onClick}
       disabled={disabled}
       aria-label={isListening ? "Stop listening" : "Start listening"}

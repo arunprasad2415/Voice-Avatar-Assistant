@@ -9,7 +9,7 @@ import blinkTalkAvatar from "../assets/avatar-blink-talk.png";
 
 import "../styles/components/Avatar.css";
 
-const Avatar = ({ isSpeaking = false }) => {
+const Avatar = ({ isSpeaking = false, status = "Support Assistant" }) => {
   const [isBlinking, setIsBlinking] = useState(false);
   const [speechFrame, setSpeechFrame] = useState(0);
 
@@ -32,23 +32,22 @@ const Avatar = ({ isSpeaking = false }) => {
       speakingInterval = setInterval(() => {
         setSpeechFrame((prev) => (prev + 1) % 5);
       }, 140);
-    } else {
-      setSpeechFrame(0);
     }
 
     return () => clearInterval(speakingInterval);
   }, [isSpeaking]);
 
-  let currentAvatar = normalAvatar;
+  const frame = isSpeaking ? speechFrame : 0;
+  let currentAvatar;
 
   if (isBlinking) {
-    if (speechFrame !== 0) {
+    if (frame !== 0) {
       currentAvatar = blinkTalkAvatar;
     } else {
       currentAvatar = blinkAvatar;
     }
   } else {
-    switch (speechFrame) {
+    switch (frame) {
       case 1:
         currentAvatar = talkAvatar;
         break;
@@ -81,15 +80,19 @@ const Avatar = ({ isSpeaking = false }) => {
       </div>
 
       <div className="avatar-info">
-        <h2 className="avatar-name">
-          Vaishu
-        </h2>
+        <h2 className="avatar-name">Vaishu</h2>
 
-        <p className="avatar-status">
-          {isSpeaking
-            ? "🎙️ Speaking..."
-            : "Support Assistant"}
-        </p>
+        {isSpeaking ? (
+          <div className="avatar-wave" aria-label="Speaking">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        ) : (
+          <p className="avatar-status" aria-live="polite">{status}</p>
+        )}
       </div>
     </div>
   );
