@@ -13,7 +13,7 @@
 }
 .sidebar-brand::before {
   content: ""; width: 12px; height: 12px; border-radius: 50%;
-  background: var(--grad-teal); box-shadow: 0 0 12px rgba(7,122,125,0.4);
+  background: var(--grad-accent); box-shadow: 0 0 12px rgba(201, 169, 110, 0.4);
 }
 .sidebar-nav { display: flex; flex-direction: column; gap: 3px; padding: 0 0.75rem; }
 .sidebar-link {
@@ -28,7 +28,7 @@
 }
 .sidebar-link-active::before {
   content: ""; position: absolute; left: -0.75rem; top: 50%; transform: translateY(-50%);
-  width: 3px; height: 58%; border-radius: 999px; background: var(--grad-teal);
+  width: 3px; height: 58%; border-radius: 999px; background: var(--grad-accent);
 }
 .sidebar-footer { margin-top: auto; padding: 1.75rem 1.75rem 0; }
 .sidebar-assistant-link {

@@ -1,98 +1,104 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import normalAvatar from "../assets/avatar-normal.png";
 import talkAvatar from "../assets/avatar-talk.png";
 import talkAvatar1 from "../assets/avatar-talk-1.png";
-
 import blinkAvatar from "../assets/avatar-blink.png";
 import blinkTalkAvatar from "../assets/avatar-blink-talk.png";
 
+import { buildLipSync, fillerFrame } from "../utils/lipSync";
 import "../styles/components/Avatar.css";
 
-const Avatar = ({ isSpeaking = false, status = "Support Assistant" }) => {
+// Overlays stacked on the always-visible neutral face, so switching never flashes the background.
+const OVERLAYS = {
+  small: talkAvatar1,
+  open: talkAvatar,
+  blink: blinkAvatar,
+  blinkTalk: blinkTalkAvatar,
+};
+
+// speechText: the sentence being spoken right now (null when silent).
+// wordIndex: char index of the word the voice reports it is on, when the voice supports it.
+const Avatar = ({ speechText = null, wordIndex = -1, status = "Support Assistant" }) => {
+  const [mouth, setMouth] = useState("closed");
   const [isBlinking, setIsBlinking] = useState(false);
-  const [speechFrame, setSpeechFrame] = useState(0);
+  const timelineRef = useRef([]);
+  const stepRef = useRef(0);
+  const isSpeaking = Boolean(speechText);
 
+  // Natural blinking: irregular gaps, quick lids, and the occasional double blink.
   useEffect(() => {
-    const blinkInterval = setInterval(() => {
+    let timer;
+    const schedule = () => {
+      timer = setTimeout(() => blink(Math.random() < 0.18), 2200 + Math.random() * 3800);
+    };
+    const blink = (twice) => {
       setIsBlinking(true);
-
-      setTimeout(() => {
+      timer = setTimeout(() => {
         setIsBlinking(false);
-      }, 250);
-    }, 3500);
-
-    return () => clearInterval(blinkInterval);
+        timer = twice ? setTimeout(() => blink(false), 160) : setTimeout(schedule, 0);
+      }, 120);
+    };
+    schedule();
+    return () => clearTimeout(timer);
   }, []);
 
+  // Lip sync: play the mouth shapes estimated from the words being spoken.
   useEffect(() => {
-    let speakingInterval;
-
-    if (isSpeaking) {
-      speakingInterval = setInterval(() => {
-        setSpeechFrame((prev) => (prev + 1) % 5);
-      }, 140);
+    if (!speechText) {
+      return;
     }
+    timelineRef.current = buildLipSync(speechText);
+    stepRef.current = 0;
 
-    return () => clearInterval(speakingInterval);
-  }, [isSpeaking]);
+    let timer;
+    const next = () => {
+      const step = stepRef.current++;
+      const frame = timelineRef.current[step] || fillerFrame(step);
+      setMouth(frame.shape);
+      timer = setTimeout(next, frame.ms);
+    };
+    timer = setTimeout(next, 0);
+    return () => clearTimeout(timer);
+  }, [speechText]);
 
-  const frame = isSpeaking ? speechFrame : 0;
-  let currentAvatar;
+  // When the voice reports the word it is on, jump the lips to that word to stay in sync.
+  useEffect(() => {
+    if (wordIndex < 0) return;
+    const step = timelineRef.current.findIndex((frame) => frame.charIndex >= wordIndex);
+    if (step >= 0) stepRef.current = step;
+  }, [wordIndex]);
 
-  if (isBlinking) {
-    if (frame !== 0) {
-      currentAvatar = blinkTalkAvatar;
-    } else {
-      currentAvatar = blinkAvatar;
-    }
-  } else {
-    switch (frame) {
-      case 1:
-        currentAvatar = talkAvatar;
-        break;
-
-      case 2:
-        currentAvatar = talkAvatar1;
-        break;
-
-      case 4:
-        currentAvatar = talkAvatar1;
-        break;
-
-      default:
-        currentAvatar = normalAvatar;
-    }
-  }
+  const shownMouth = isSpeaking ? mouth : "closed";
+  const overlay = isBlinking ? (shownMouth === "closed" ? "blink" : "blinkTalk") : shownMouth;
 
   return (
     <div className="avatar">
       <div
-        className={`avatar-image-wrapper ${
-          isSpeaking ? "avatar-speaking" : ""
-        }`}
+        className={`avatar-portrait ${isSpeaking ? "avatar-portrait-speaking" : ""}`}
+        role="img"
+        aria-label="Vaishu, your support assistant"
       >
-        <img
-          src={currentAvatar}
-          alt="Vaishu Assistant"
-          className="avatar-image"
-        />
+        <div className="avatar-head">
+          <img src={normalAvatar} alt="" className="avatar-frame avatar-frame-base" draggable="false" />
+          {Object.entries(OVERLAYS).map(([key, src]) => (
+            <img
+              key={key}
+              src={src}
+              alt=""
+              className={`avatar-frame ${overlay === key ? "avatar-frame-on" : ""}`}
+              draggable="false"
+            />
+          ))}
+        </div>
       </div>
 
       <div className="avatar-info">
         <h2 className="avatar-name">Vaishu</h2>
-
-        {isSpeaking ? (
-          <div className="avatar-wave" aria-label="Speaking">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        ) : (
-          <p className="avatar-status" aria-live="polite">{status}</p>
-        )}
+        <p className="avatar-status" aria-live="polite">
+          <span className="avatar-status-dot" aria-hidden="true" />
+          {status}
+        </p>
       </div>
     </div>
   );

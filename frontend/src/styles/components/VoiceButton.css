@@ -1,27 +1,42 @@
 .voice-button {
-  display: inline-flex; align-items: center; gap: 0.6rem;
-  padding: 1rem 2.5rem;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 2rem;
   font-family: var(--font-body);
-  font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
-  color: #fff;
-  background: var(--grad-teal);
-  border: none; border-radius: 999px; cursor: pointer;
-  transition: all 0.3s var(--ease);
-  box-shadow: 0 10px 26px -8px rgba(7,122,125,0.55);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--on-accent);
+  background: var(--grad-accent);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 12px 30px -12px rgba(201, 169, 110, 0.6);
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
 }
-[data-theme="dark"] .voice-button { color: var(--c-ink); }
-.voice-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 16px 34px -8px rgba(7,122,125,0.65); }
-.voice-button:active:not(:disabled) { transform: translateY(0); }
-.voice-button:disabled { opacity: 0.4; cursor: not-allowed; }
+.voice-button:hover:not(:disabled) { transform: translateY(-2px); }
+.voice-button:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.voice-button:disabled { opacity: 0.35; cursor: not-allowed; }
+.voice-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-.voice-button-listening {
-  background: var(--grad-forest);
-  animation: voicePulse 1.6s ease-out infinite;
+.voice-button-icon { width: 20px; height: 20px; flex-shrink: 0; }
+.voice-button-label { white-space: nowrap; }
+
+/* Listening: switches to ivory with a gold pulse ring */
+.voice-button-listening { color: var(--bg); background: var(--grad-listening); }
+.voice-button-listening::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--accent);
+  animation: voicePulse 1.6s var(--ease) infinite;
+  pointer-events: none;
 }
 @keyframes voicePulse {
-  0% { box-shadow: 0 0 0 0 rgba(48,109,41,0.5); }
-  70% { box-shadow: 0 0 0 16px rgba(48,109,41,0); }
-  100% { box-shadow: 0 0 0 0 rgba(48,109,41,0); }
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.18, 1.45); }
 }
-.voice-button-label { white-space: nowrap; }
-.voice-button-icon { width: 22px; height: 22px; flex-shrink: 0; }

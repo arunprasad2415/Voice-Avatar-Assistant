@@ -18,10 +18,10 @@
 .dashboard-card::after {
   content: ""; position: absolute; top: -50%; right: -25%;
   width: 180px; height: 180px; border-radius: 50%;
-  background: var(--grad-teal-soft); filter: blur(20px);
+  background: var(--grad-accent-soft); filter: blur(20px);
   opacity: 0.7; transition: opacity 0.3s var(--ease);
 }
-.dashboard-card:hover { transform: translateY(-4px); box-shadow: var(--glow-teal); border-color: var(--accent); }
+.dashboard-card:hover { transform: translateY(-4px); box-shadow: var(--glow-accent); border-color: var(--accent); }
 .dashboard-card:hover::after { opacity: 1; }
 .dashboard-card-label {
   font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em;

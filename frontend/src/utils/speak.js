@@ -35,8 +35,8 @@ const speak = (text, callbacks = {}) => {
     if (onStart) onStart();
   };
 
-  utterance.onboundary = () => {
-    if (onBoundary) onBoundary();
+  utterance.onboundary = (event) => {
+    if (onBoundary) onBoundary(event);
   };
 
   utterance.onend = () => {

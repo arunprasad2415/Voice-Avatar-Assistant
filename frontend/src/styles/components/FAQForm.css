@@ -7,11 +7,11 @@
 .faq-form-group input::placeholder, .faq-form-group textarea::placeholder { color: var(--ink-3); }
 .faq-form-group input:focus, .faq-form-group textarea:focus, .faq-form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); background: var(--surface); }
 .faq-form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.faq-form-button { align-self: flex-start; padding: 0.75rem 1.8rem; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: var(--grad-teal); border: none; border-radius: 999px; cursor: pointer; transition: all 0.3s var(--ease); box-shadow: 0 8px 18px -6px rgba(7,122,125,0.5); }
+.faq-form-button { align-self: flex-start; padding: 0.75rem 1.8rem; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--on-accent); background: var(--grad-accent); border: none; border-radius: 999px; cursor: pointer; transition: all 0.3s var(--ease); box-shadow: 0 8px 18px -6px rgba(201, 169, 110, 0.5); }
 .faq-form-button:hover:not(:disabled) { transform: translateY(-2px); }
 .faq-form-button:disabled { opacity: 0.5; cursor: not-allowed; }
 [data-theme="dark"] .faq-form-button { color: var(--c-ink); }
 .faq-form-actions { display: flex; gap: 0.75rem; align-items: center; }
 .faq-form-cancel { padding: 0.75rem 1.4rem; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: 999px; cursor: pointer; transition: all 0.2s var(--ease); }
 .faq-form-cancel:hover { color: var(--ink); border-color: var(--ink-3); }
-.faq-form-editing { border-color: var(--accent); box-shadow: var(--glow-teal); }
+.faq-form-editing { border-color: var(--accent); box-shadow: var(--glow-accent); }

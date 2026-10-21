@@ -1,52 +1,109 @@
-.avatar { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.8rem, 2vh, 1.3rem);
+}
 
-.avatar-image-wrapper {
-  width: 184px; height: 184px;
-  display: flex; align-items: center; justify-content: center;
+/* Portrait in a thin gold ring; it unveils from the centre, then breathes gently */
+.avatar-portrait {
+  --size: var(--portrait, 220px);
   position: relative;
+  flex-shrink: 0;
+  width: var(--size);
+  height: var(--size);
+  padding: 2px;
   border-radius: 50%;
-  padding: 5px;
-  background: var(--grad-teal);
-  box-shadow: 0 14px 36px -10px rgba(7,122,125,0.45);
-  transition: transform 0.3s var(--ease);
+  background: conic-gradient(from 210deg, #E6CF9F, #8C6A2F, #E6CF9F, #A8874D, #E6CF9F);
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.8);
+  animation:
+    portraitReveal 1.3s var(--ease-out-expo) 0.15s both,
+    breathe 5.5s ease-in-out 1.5s infinite;
 }
-.avatar-image-wrapper::after {
-  content: ""; position: absolute; inset: 5px;
-  border-radius: 50%; border: 3px solid var(--surface); pointer-events: none;
+@keyframes portraitReveal {
+  from { clip-path: circle(0% at 50% 50%); opacity: 0; }
+  to { clip-path: circle(71% at 50% 50%); opacity: 1; }
 }
-.avatar-speaking { animation: speakingBob 1.3s ease-in-out infinite; }
-
-.avatar-image {
-  width: 100%; height: 100%;
-  object-fit: cover; border-radius: 50%;
-  user-select: none; pointer-events: none;
-  background: var(--c-cream);
+@keyframes breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.008); }
 }
 
-.avatar-info { text-align: center; margin-top: 1.4rem; }
+.avatar-head {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #111;
+  /* Black gap between the gold ring and the face, like a framed portrait */
+  border: 4px solid var(--bg);
+}
+/* While talking the head moves a little, irregularly, like a person does */
+.avatar-portrait-speaking .avatar-head { animation: talkSway 3.7s ease-in-out infinite; }
+@keyframes talkSway {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  22% { transform: rotate(0.7deg) translateY(-1px); }
+  48% { transform: rotate(-0.4deg) translateY(0.5px); }
+  73% { transform: rotate(0.3deg) translateY(-0.5px); }
+}
+
+/* Frames are stacked; the neutral face is always underneath so a swap never shows a gap */
+.avatar-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 70ms linear;
+  user-select: none;
+  pointer-events: none;
+}
+.avatar-frame-base,
+.avatar-frame-on { opacity: 1; }
+
+.avatar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  animation: riseIn 0.9s var(--ease-out-expo) 0.45s both;
+}
 .avatar-name {
   font-family: var(--font-display);
-  font-size: 2.1rem; font-weight: 600; letter-spacing: -0.01em;
+  font-size: clamp(1.4rem, 3vh, 1.85rem);
+  font-weight: 600;
+  line-height: 1;
   color: var(--ink);
 }
 .avatar-status {
-  margin-top: 0.5rem;
-  font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.18em;
-  color: var(--ink-3); font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--ink-3);
+  transition: color 0.3s var(--ease);
+}
+/* Idle: a steady "available" dot */
+.avatar-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
 }
 
-.avatar-wave { display: inline-flex; align-items: flex-end; gap: 4px; height: 18px; margin-top: 0.7rem; }
-.avatar-wave span { width: 3px; border-radius: 999px; background: var(--grad-teal); animation: waveBar 1s ease-in-out infinite; }
-.avatar-wave span:nth-child(1) { animation-delay: 0s; }
-.avatar-wave span:nth-child(2) { animation-delay: 0.15s; }
-.avatar-wave span:nth-child(3) { animation-delay: 0.3s; }
-.avatar-wave span:nth-child(4) { animation-delay: 0.45s; }
-.avatar-wave span:nth-child(5) { animation-delay: 0.2s; }
-
-@keyframes waveBar { 0%,100% { height: 4px; } 50% { height: 18px; } }
-@keyframes speakingBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-
-@media (max-width: 640px) {
-  .avatar-image-wrapper { width: 152px; height: 152px; }
-  .avatar-name { font-size: 1.7rem; }
+/* Soft vignette so the studio-blue backdrop melts into the black-and-gold frame */
+.avatar-head::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, transparent 52%, rgba(10, 10, 11, 0.55) 100%);
+  pointer-events: none;
+}
+[data-theme="light"] .avatar-head::after {
+  background: radial-gradient(circle at 50% 42%, transparent 58%, rgba(20, 20, 20, 0.25) 100%);
 }

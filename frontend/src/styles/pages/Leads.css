@@ -19,8 +19,8 @@
 .leads-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
 .leads-search button {
   padding: 0.7rem 1.6rem; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
-  color: #fff; background: var(--grad-teal); border: none; border-radius: 999px; cursor: pointer;
-  transition: all 0.25s var(--ease); box-shadow: 0 8px 18px -6px rgba(7,122,125,0.5);
+  color: var(--on-accent); background: var(--grad-accent); border: none; border-radius: 999px; cursor: pointer;
+  transition: all 0.25s var(--ease); box-shadow: 0 8px 18px -6px rgba(201, 169, 110, 0.5);
 }
 .leads-search button:hover { transform: translateY(-1px); }
 [data-theme="dark"] .leads-search button { color: var(--c-ink); }
