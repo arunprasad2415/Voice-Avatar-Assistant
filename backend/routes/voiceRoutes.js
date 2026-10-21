@@ -8,8 +8,9 @@ const {
   deleteVoiceResponse,
 } = require("../controllers/voiceController");
 const { protect } = require("../middleware/authMiddleware");
+const rateLimit = require("../middleware/rateLimit");
 
-router.post("/query", handleVoiceQuery);
+router.post("/query", rateLimit({ windowMs: 60 * 1000, max: 20 }), handleVoiceQuery);
 
 router.get("/", protect, getVoiceResponses);
 router.post("/", protect, createVoiceResponse);

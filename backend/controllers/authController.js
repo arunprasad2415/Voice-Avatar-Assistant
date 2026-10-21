@@ -1,7 +1,7 @@
 const Admin = require("../models/Admin");
 const generateToken = require("../utils/generateToken");
 
-const registerAdmin = async (req, res) => {
+const registerAdmin = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -34,14 +34,11 @@ const registerAdmin = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const loginAdmin = async (req, res) => {
+const loginAdmin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -80,25 +77,15 @@ const loginAdmin = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const getProfile = async (req, res) => {
-  try {
-    return res.status(200).json({
-      success: true,
-      data: req.admin,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+const getProfile = (req, res) => {
+  return res.status(200).json({
+    success: true,
+    data: req.admin,
+  });
 };
 
 module.exports = {

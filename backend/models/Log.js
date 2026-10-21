@@ -4,7 +4,7 @@ const logSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["voice", "faq", "lead", "error"],
+      enum: ["voice", "faq", "ai", "fallback", "lead", "error"],
       default: "voice",
     },
     userInput: {

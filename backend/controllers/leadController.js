@@ -1,8 +1,9 @@
 const Lead = require("../models/Lead");
+const { escapeRegex } = require("../utils/text");
 const { generateLeadsCSV } = require("../services/csvService");
 const { generateLeadsExcel } = require("../services/excelService");
 
-const createLead = async (req, res) => {
+const createLead = async (req, res, next) => {
   try {
     const { name, email, phone, message } = req.body;
 
@@ -21,14 +22,11 @@ const createLead = async (req, res) => {
       data: lead,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const getLeads = async (req, res) => {
+const getLeads = async (req, res, next) => {
   try {
     const { search, status } = req.query;
 
@@ -39,10 +37,11 @@ const getLeads = async (req, res) => {
     }
 
     if (search) {
+      const pattern = escapeRegex(search);
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-        { phone: { $regex: search, $options: "i" } },
+        { name: { $regex: pattern, $options: "i" } },
+        { email: { $regex: pattern, $options: "i" } },
+        { phone: { $regex: pattern, $options: "i" } },
       ];
     }
 
@@ -54,14 +53,11 @@ const getLeads = async (req, res) => {
       data: leads,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const getLeadById = async (req, res) => {
+const getLeadById = async (req, res, next) => {
   try {
     const lead = await Lead.findById(req.params.id);
 
@@ -77,14 +73,11 @@ const getLeadById = async (req, res) => {
       data: lead,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const updateLead = async (req, res) => {
+const updateLead = async (req, res, next) => {
   try {
     const lead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -104,14 +97,11 @@ const updateLead = async (req, res) => {
       data: lead,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const deleteLead = async (req, res) => {
+const deleteLead = async (req, res, next) => {
   try {
     const lead = await Lead.findByIdAndDelete(req.params.id);
 
@@ -127,14 +117,11 @@ const deleteLead = async (req, res) => {
       message: "Lead deleted successfully",
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const exportLeadsCSV = async (req, res) => {
+const exportLeadsCSV = async (req, res, next) => {
   try {
     const leads = await Lead.find().sort({ createdAt: -1 });
 
@@ -144,14 +131,11 @@ const exportLeadsCSV = async (req, res) => {
     res.attachment("leads.csv");
     return res.send(csv);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const exportLeadsExcel = async (req, res) => {
+const exportLeadsExcel = async (req, res, next) => {
   try {
     const leads = await Lead.find().sort({ createdAt: -1 });
 
@@ -164,10 +148,7 @@ const exportLeadsExcel = async (req, res) => {
     res.attachment("leads.xlsx");
     return res.send(buffer);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 

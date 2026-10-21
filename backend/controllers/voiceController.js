@@ -2,108 +2,68 @@ const VoiceResponse = require("../models/VoiceResponse");
 const FAQ = require("../models/FAQ");
 const Log = require("../models/Log");
 const { getAIResponse } = require("../services/speechService");
+const { findBestMatch } = require("../utils/text");
 
-const handleVoiceQuery = async (req, res) => {
+const MAX_QUERY_LENGTH = 500;
+const DEFAULT_FALLBACK =
+  "Sorry, I didn't understand that. Could you please rephrase?";
+
+const handleVoiceQuery = async (req, res, next) => {
   try {
-    const { text } = req.body;
+    const text = typeof req.body.text === "string" ? req.body.text.trim() : "";
 
-    if (!text || text.trim() === "") {
+    if (!text) {
       return res.status(400).json({
         success: false,
         message: "Voice input text is required",
       });
     }
 
-    const query = text.trim().toLowerCase();
-
-    const voiceMatch = await VoiceResponse.findOne({
-      isActive: true,
-      trigger: { $regex: query, $options: "i" },
-    });
-
-    if (voiceMatch) {
-      await Log.create({
-        type: "voice",
-        userInput: text,
-        response: voiceMatch.response,
-        matched: true,
-      });
-
-      return res.status(200).json({
-        success: true,
-        matched: true,
-        source: "voice",
-        data: { reply: voiceMatch.response },
+    if (text.length > MAX_QUERY_LENGTH) {
+      return res.status(400).json({
+        success: false,
+        message: `Please keep your message under ${MAX_QUERY_LENGTH} characters`,
       });
     }
 
-    const faqMatch = await FAQ.findOne({
-      isActive: true,
-      $or: [
-        { question: { $regex: query, $options: "i" } },
-        { keywords: { $regex: query, $options: "i" } },
-      ],
-    });
+    const respond = async (source, reply, matched = true) => {
+      await Log.create({ type: source, userInput: text, response: reply, matched });
+      return res.status(200).json({ success: true, matched, source, data: { reply } });
+    };
 
+    // ponytail: loads every active entry per query; fine for hundreds, move to a text index at thousands
+    const [voiceResponses, faqs] = await Promise.all([
+      VoiceResponse.find({ isActive: true }).lean(),
+      FAQ.find({ isActive: true }).lean(),
+    ]);
+
+    const voiceMatch = findBestMatch(
+      text,
+      voiceResponses.filter((v) => v.type !== "fallback"),
+      (v) => [v.trigger]
+    );
+    if (voiceMatch) {
+      return respond("voice", voiceMatch.response);
+    }
+
+    const faqMatch = findBestMatch(text, faqs, (f) => [f.question, ...f.keywords]);
     if (faqMatch) {
-      await Log.create({
-        type: "faq",
-        userInput: text,
-        response: faqMatch.answer,
-        matched: true,
-      });
-
-      return res.status(200).json({
-        success: true,
-        matched: true,
-        source: "faq",
-        data: { reply: faqMatch.answer },
-      });
+      return respond("faq", faqMatch.answer);
     }
 
     const aiReply = await getAIResponse(text);
-
     if (aiReply) {
-      await Log.create({
-        type: "voice",
-        userInput: text,
-        response: aiReply,
-        matched: true,
-      });
-
-      return res.status(200).json({
-        success: true,
-        matched: true,
-        source: "ai",
-        data: { reply: aiReply },
-      });
+      return respond("ai", aiReply);
     }
 
-    const fallbackReply =
-      "Sorry, I didn't understand that. Could you please rephrase?";
-
-    await Log.create({
-      type: "voice",
-      userInput: text,
-      response: fallbackReply,
-      matched: false,
-    });
-
-    return res.status(200).json({
-      success: true,
-      matched: false,
-      source: "fallback",
-      data: { reply: fallbackReply },
-    });
+    const fallback = voiceResponses.find((v) => v.type === "fallback");
+    return respond("fallback", fallback ? fallback.response : DEFAULT_FALLBACK, false);
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const createVoiceResponse = async (req, res) => {
+const createVoiceResponse = async (req, res, next) => {
   try {
     const { trigger, response, type } = req.body;
 
@@ -122,14 +82,11 @@ const createVoiceResponse = async (req, res) => {
       data: voiceResponse,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const getVoiceResponses = async (req, res) => {
+const getVoiceResponses = async (req, res, next) => {
   try {
     const voiceResponses = await VoiceResponse.find().sort({ createdAt: -1 });
 
@@ -139,14 +96,11 @@ const getVoiceResponses = async (req, res) => {
       data: voiceResponses,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const updateVoiceResponse = async (req, res) => {
+const updateVoiceResponse = async (req, res, next) => {
   try {
     const voiceResponse = await VoiceResponse.findByIdAndUpdate(
       req.params.id,
@@ -167,14 +121,11 @@ const updateVoiceResponse = async (req, res) => {
       data: voiceResponse,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const deleteVoiceResponse = async (req, res) => {
+const deleteVoiceResponse = async (req, res, next) => {
   try {
     const voiceResponse = await VoiceResponse.findByIdAndDelete(req.params.id);
 
@@ -190,10 +141,7 @@ const deleteVoiceResponse = async (req, res) => {
       message: "Voice response deleted successfully",
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 

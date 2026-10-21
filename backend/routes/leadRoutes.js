@@ -10,8 +10,9 @@ const {
   exportLeadsExcel,
 } = require("../controllers/leadController");
 const { protect } = require("../middleware/authMiddleware");
+const rateLimit = require("../middleware/rateLimit");
 
-router.post("/", createLead);
+router.post("/", rateLimit({ windowMs: 15 * 60 * 1000, max: 5 }), createLead);
 
 router.get("/export/csv", protect, exportLeadsCSV);
 router.get("/export/excel", protect, exportLeadsExcel);

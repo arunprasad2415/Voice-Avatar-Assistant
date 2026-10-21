@@ -1,6 +1,7 @@
 const FAQ = require("../models/FAQ");
+const { escapeRegex } = require("../utils/text");
 
-const createFAQ = async (req, res) => {
+const createFAQ = async (req, res, next) => {
   try {
     const { question, answer, category, keywords } = req.body;
 
@@ -19,14 +20,11 @@ const createFAQ = async (req, res) => {
       data: faq,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const getFAQs = async (req, res) => {
+const getFAQs = async (req, res, next) => {
   try {
     const { search, category } = req.query;
 
@@ -37,10 +35,11 @@ const getFAQs = async (req, res) => {
     }
 
     if (search) {
+      const pattern = escapeRegex(search);
       filter.$or = [
-        { question: { $regex: search, $options: "i" } },
-        { answer: { $regex: search, $options: "i" } },
-        { keywords: { $regex: search, $options: "i" } },
+        { question: { $regex: pattern, $options: "i" } },
+        { answer: { $regex: pattern, $options: "i" } },
+        { keywords: { $regex: pattern, $options: "i" } },
       ];
     }
 
@@ -52,14 +51,11 @@ const getFAQs = async (req, res) => {
       data: faqs,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const getFAQById = async (req, res) => {
+const getFAQById = async (req, res, next) => {
   try {
     const faq = await FAQ.findById(req.params.id);
 
@@ -75,14 +71,11 @@ const getFAQById = async (req, res) => {
       data: faq,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const updateFAQ = async (req, res) => {
+const updateFAQ = async (req, res, next) => {
   try {
     const faq = await FAQ.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -102,14 +95,11 @@ const updateFAQ = async (req, res) => {
       data: faq,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const deleteFAQ = async (req, res) => {
+const deleteFAQ = async (req, res, next) => {
   try {
     const faq = await FAQ.findByIdAndDelete(req.params.id);
 
@@ -125,10 +115,7 @@ const deleteFAQ = async (req, res) => {
       message: "FAQ deleted successfully",
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 

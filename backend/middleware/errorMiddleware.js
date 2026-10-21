@@ -6,11 +6,20 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let statusCode = err.status || (res.statusCode === 200 ? 500 : res.statusCode);
+
+  // Bad input from the client: schema validation, malformed ids, duplicate unique keys.
+  if (err.name === "ValidationError" || err.name === "CastError" || err.code === 11000) {
+    statusCode = 400;
+  }
+
+  if (statusCode >= 500) {
+    console.error(err);
+  }
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || "Server Error",
+    message: statusCode >= 500 ? "Server Error" : err.message,
   });
 };
 
