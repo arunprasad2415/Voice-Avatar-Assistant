@@ -24,6 +24,8 @@ const app = express();
 // Hosts like Render/Railway sit behind one proxy; without this every visitor shares one IP for rate limiting.
 app.set("trust proxy", 1);
 app.use(cors({ origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : "*" }));
+// Voice recordings need a bigger body limit than the 100kb default; registered first so it wins for this route.
+app.use("/api/voice/transcribe", express.json({ limit: "4mb" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {

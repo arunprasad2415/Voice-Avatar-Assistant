@@ -111,6 +111,7 @@ const Home = () => {
 
   const {
     isListening,
+    isTranscribing,
     transcript,
     isSupported,
     error: speechError,
@@ -143,7 +144,7 @@ const Home = () => {
 
   const assistantState = isSpeaking
     ? "speaking"
-    : isProcessing
+    : isProcessing || isTranscribing
       ? "thinking"
       : isListening
         ? "listening"
@@ -210,7 +211,7 @@ const Home = () => {
               {isSupported ? (
                 <VoiceButton
                   isListening={isListening}
-                  disabled={isProcessing}
+                  disabled={isProcessing || isTranscribing}
                   onClick={handleVoiceButtonClick}
                 />
               ) : (

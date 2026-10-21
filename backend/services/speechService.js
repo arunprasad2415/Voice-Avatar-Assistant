@@ -15,6 +15,13 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 let client;
 
+const getClient = (apiKey) => {
+  client = client || new GoogleGenAI({ apiKey, httpOptions: { timeout: TIMEOUT_MS } });
+  return client;
+};
+
+const getModel = () => process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
 // A reply cut off by the token limit would be spoken mid-sentence; end it at the last full sentence.
 const trimToSentence = (text) => {
   const whole = text.match(/^[\s\S]*[.!?]/);
@@ -29,12 +36,10 @@ const getAIResponse = async (userText) => {
     return null;
   }
 
-  client = client || new GoogleGenAI({ apiKey, httpOptions: { timeout: TIMEOUT_MS } });
-
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const result = await client.models.generateContent({
-        model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+      const result = await getClient(apiKey).models.generateContent({
+        model: getModel(),
         contents: userText,
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
@@ -68,4 +73,35 @@ const getAIResponse = async (userText) => {
   return null;
 };
 
-module.exports = { getAIResponse };
+// Speech-to-text for browsers whose built-in recognition is missing or can't reach its service.
+// Throws on failure so the caller can tell the user voice input is unavailable.
+const transcribeAudio = async (base64Audio, mimeType) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is missing from environment");
+  }
+
+  const result = await getClient(apiKey).models.generateContent({
+    model: getModel(),
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { inlineData: { mimeType, data: base64Audio } },
+          {
+            text:
+              "Transcribe the speech in this audio exactly as spoken, in the language spoken. " +
+              "Reply with only the transcript: no quotes, labels or commentary. " +
+              "If there is no intelligible speech, reply with nothing.",
+          },
+        ],
+      },
+    ],
+    config: { maxOutputTokens: 300, temperature: 0, thinkingConfig: { thinkingBudget: 0 } },
+  });
+
+  return (result.text || "").trim().replace(/^["']+|["']+$/g, "");
+};
+
+module.exports = { getAIResponse, transcribeAudio };

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
   handleVoiceQuery,
+  transcribeVoice,
   createVoiceResponse,
   getVoiceResponses,
   updateVoiceResponse,
@@ -11,6 +12,7 @@ const { protect } = require("../middleware/authMiddleware");
 const rateLimit = require("../middleware/rateLimit");
 
 router.post("/query", rateLimit({ windowMs: 60 * 1000, max: 20 }), handleVoiceQuery);
+router.post("/transcribe", rateLimit({ windowMs: 60 * 1000, max: 20 }), transcribeVoice);
 
 router.get("/", protect, getVoiceResponses);
 router.post("/", protect, createVoiceResponse);

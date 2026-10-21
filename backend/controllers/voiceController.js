@@ -1,7 +1,7 @@
 const VoiceResponse = require("../models/VoiceResponse");
 const FAQ = require("../models/FAQ");
 const Log = require("../models/Log");
-const { getAIResponse } = require("../services/speechService");
+const { getAIResponse, transcribeAudio } = require("../services/speechService");
 const { findBestMatch } = require("../utils/text");
 
 const MAX_QUERY_LENGTH = 500;
@@ -60,6 +60,39 @@ const handleVoiceQuery = async (req, res, next) => {
     return respond("fallback", fallback ? fallback.response : DEFAULT_FALLBACK, false);
   } catch (error) {
     next(error);
+  }
+};
+
+// ~20s of compressed speech is well under this; base64 inflates size by a third.
+const MAX_AUDIO_BASE64_LENGTH = 3 * 1024 * 1024;
+
+const transcribeVoice = async (req, res) => {
+  const { audio, mimeType } = req.body;
+  const baseMimeType = typeof mimeType === "string" ? mimeType.split(";")[0].trim() : "";
+
+  if (typeof audio !== "string" || !audio || !/^audio\/[\w.+-]+$/.test(baseMimeType)) {
+    return res.status(400).json({
+      success: false,
+      message: "Audio and an audio mimeType are required",
+    });
+  }
+
+  if (audio.length > MAX_AUDIO_BASE64_LENGTH) {
+    return res.status(400).json({
+      success: false,
+      message: "Recording is too long. Please keep it under 20 seconds.",
+    });
+  }
+
+  try {
+    const text = await transcribeAudio(audio, baseMimeType);
+    return res.status(200).json({ success: true, data: { text } });
+  } catch (error) {
+    console.error(`Transcription failed: ${error.message}`);
+    return res.status(503).json({
+      success: false,
+      message: "Voice transcription is unavailable right now. Please type your question.",
+    });
   }
 };
 
@@ -147,6 +180,7 @@ const deleteVoiceResponse = async (req, res, next) => {
 
 module.exports = {
   handleVoiceQuery,
+  transcribeVoice,
   createVoiceResponse,
   getVoiceResponses,
   updateVoiceResponse,
