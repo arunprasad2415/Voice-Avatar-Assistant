@@ -7,7 +7,7 @@ const VoiceButton = ({ isListening, disabled = false, onClick }) => {
       className={`voice-button ${isListening ? "voice-button-listening" : ""}`}
       onClick={onClick}
       disabled={disabled}
-      aria-label={isListening ? "Stop listening" : "Start listening"}
+      aria-label={isListening ? "Stop listening and send" : "Start listening"}
     >
       <svg
         className="voice-button-icon"
@@ -29,7 +29,7 @@ const VoiceButton = ({ isListening, disabled = false, onClick }) => {
       </svg>
 
       <span className="voice-button-label">
-        {isListening ? "Listening..." : "Tap to speak"}
+        {isListening ? "Tap to send" : "Tap to speak"}
       </span>
     </button>
   );

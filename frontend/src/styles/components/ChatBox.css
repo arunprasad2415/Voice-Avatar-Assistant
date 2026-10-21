@@ -66,3 +66,7 @@
   background: var(--accent); animation: caretBlink 0.9s steps(1) infinite;
 }
 @keyframes caretBlink { 50% { opacity: 0; } }
+
+/* What the user is saying right now, before it's sent */
+.chat-message-live { opacity: 0.75; animation: none; }
+.chat-message-live .chat-caret { background: currentColor; }

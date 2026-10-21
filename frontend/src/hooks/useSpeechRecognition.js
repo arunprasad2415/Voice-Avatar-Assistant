@@ -4,9 +4,22 @@ const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 const isSupported = Boolean(SpeechRecognition);
 
-// Calls onResult(text) with each finished phrase the user speaks.
+// How long the user can pause mid-sentence before we treat the question as finished.
+const SILENCE_MS = 1500;
+
+const ERROR_MESSAGES = {
+  "not-allowed": "Microphone permission denied. Please allow microphone access.",
+  "service-not-allowed": "Microphone permission denied. Please allow microphone access.",
+  "no-speech": "No speech detected. Try again.",
+  "audio-capture": "No microphone found.",
+  network: "Voice recognition needs an internet connection. Please try again.",
+};
+
+// Listens until the user stops talking, exposing the live transcript as they speak,
+// then calls onResult(text) once with the whole utterance.
 const useSpeechRecognition = (onResult) => {
   const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
   const [error, setError] = useState(null);
 
   const recognitionRef = useRef(null);
@@ -23,49 +36,70 @@ const useSpeechRecognition = (onResult) => {
 
     const recognition = new SpeechRecognition();
 
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    // continuous=false ends at the first short pause and cuts people off mid-sentence.
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = "en-IN";
 
+    let finalText = "";
+    let latestText = "";
+    let silenceTimer;
+
     recognition.onstart = () => {
+      finalText = "";
+      latestText = "";
+      setTranscript("");
       setIsListening(true);
       setError(null);
     };
 
     recognition.onresult = (event) => {
-      const spokenText = event.results[0][0].transcript;
-      onResultRef.current?.(spokenText);
+      let interimText = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalText += `${result[0].transcript} `;
+        } else {
+          interimText += result[0].transcript;
+        }
+      }
+
+      latestText = `${finalText}${interimText}`.trim();
+      setTranscript(latestText);
+
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => recognition.stop(), SILENCE_MS);
     };
 
     recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-
-      switch (event.error) {
-        case "not-allowed":
-          setError(
-            "Microphone permission denied. Please allow microphone access."
-          );
-          break;
-        case "no-speech":
-          setError("No speech detected. Try again.");
-          break;
-        case "audio-capture":
-          setError("No microphone found.");
-          break;
-        default:
-          setError(event.error);
+      if (event.error === "aborted") {
+        return;
       }
-
-      setIsListening(false);
+      console.error("Speech recognition error:", event.error);
+      setError(ERROR_MESSAGES[event.error] || "Voice input failed. Please try again.");
     };
 
+    // stop() delivers any pending final result before onend, so send whatever was heard.
     recognition.onend = () => {
+      clearTimeout(silenceTimer);
       setIsListening(false);
+      setTranscript("");
+
+      const text = finalText.trim() || latestText;
+      finalText = "";
+      latestText = "";
+
+      if (text) {
+        onResultRef.current?.(text);
+      }
     };
 
     recognitionRef.current = recognition;
 
     return () => {
+      clearTimeout(silenceTimer);
+      recognition.onend = null;
       try {
         recognition.abort();
       } catch (err) {
@@ -89,22 +123,18 @@ const useSpeechRecognition = (onResult) => {
     }
   }, [isListening]);
 
+  // Ends listening and sends what was said so far (via onend).
   const stopListening = useCallback(() => {
-    const recognition = recognitionRef.current;
-
-    if (!recognition) return;
-
     try {
-      recognition.stop();
+      recognitionRef.current?.stop();
     } catch (err) {
       console.error("Failed to stop recognition:", err);
     }
-
-    setIsListening(false);
   }, []);
 
   return {
     isListening,
+    transcript,
     isSupported,
     error,
     startListening,

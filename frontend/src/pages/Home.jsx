@@ -111,6 +111,7 @@ const Home = () => {
 
   const {
     isListening,
+    transcript,
     isSupported,
     error: speechError,
     startListening,
@@ -179,6 +180,7 @@ const Home = () => {
               messages={messages}
               isTyping={isProcessing}
               typedTime={typedTime}
+              liveTranscript={isListening ? transcript : ""}
               suggestions={suggestions}
               onSuggestion={sendMessage}
               onReplay={speakReply}

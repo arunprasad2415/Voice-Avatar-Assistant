@@ -37,6 +37,7 @@ const ChatBox = ({
   messages,
   isTyping = false,
   typedTime = null,
+  liveTranscript = "",
   suggestions = [],
   onSuggestion,
   onReplay,
@@ -50,11 +51,11 @@ const ChatBox = ({
     }
   }, []);
 
-  useEffect(scrollToBottom, [messages, isTyping, scrollToBottom]);
+  useEffect(scrollToBottom, [messages, isTyping, liveTranscript, scrollToBottom]);
 
   return (
     <div className="chatbox" ref={boxRef} aria-live="polite">
-      {messages.length === 0 && !isTyping ? (
+      {messages.length === 0 && !isTyping && !liveTranscript ? (
         <div className={`chatbox-empty ${suggestions.length ? "chatbox-empty-wide" : ""}`}>
           <p>Tap the microphone and ask me anything.</p>
 
@@ -106,6 +107,15 @@ const ChatBox = ({
             </div>
           </div>
         ))
+      )}
+
+      {liveTranscript && (
+        <div className="chat-message chat-message-user chat-message-live" aria-hidden="true">
+          <div className="chat-bubble">
+            {liveTranscript}
+            <span className="chat-caret" />
+          </div>
+        </div>
       )}
 
       {isTyping && (
